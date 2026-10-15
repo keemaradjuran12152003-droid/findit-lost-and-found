@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>FindIt - Lost & Found Management App</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #f3f6fb;
+            color: #222;
+        }
+
+        header {
+            background: #1769e0;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 32px;
+            margin-bottom: 8px;
+        }
+
+        header p {
+            font-size: 15px;
+        }
+
+        nav {
+            background: white;
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 2px 5px #ddd;
+        }
+
+        nav button {
+            background: none;
+            border: none;
+            color: #1769e0;
+            padding: 10px 14px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: bold;
+        }
+
+        nav button:hover {
+            color: #0b3f91;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1000px;
+            margin: 25px auto;
+        }
+
+        .welcome {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px #ddd;
+        }
+
+        .welcome h2 {
+            color: #1769e0;
+            margin-bottom: 10px;
+        }
+
+        .search-box {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        .search-box input {
+            flex: 1;
+            min-width: 0;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 7px;
+        }
+
+        .primary-btn {
+            background: #1769e0;
+            color: white;
+            border: none;
+            padding: 12px 18px;
+            border-radius: 7px;
+            cursor: pointer;
+        }
+
+        .primary-btn:hover {
+            background: #0b4eb5;
+        }
+
+        .form-card {
+            background: white;
+            padding: 22px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 8px #ddd;
+        }
+
+        .form-card h2 {
+            margin-bottom: 15px;
+            color: #1769e0;
+        }
+
+        form input,
+        form select,
+        form textarea {
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0;
+            border: 1px solid #ccc;
+            border-radius: 7px;
+            font-size: 15px;
+        }
+
+        form textarea {
+            resize: vertical;
+            min-height: 90px;
+        }
+
+        .items-grid {
+            display: grid;
+            grid-template-columns: repeat(
+                auto-fit, minmax(240px, 1fr)
+            );
+            gap: 18px;
+            margin-top: 20px;
+        }
+
+        .item-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px #ddd;
+            overflow-wrap: anywhere;
+        }
+
+        .item-card h3 {
+            color: #1769e0;
+            margin-bottom: 12px;
+        }
+
+        .item-card p {
+            margin: 8px 0;
+            line-height: 1.5;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-bottom: 12px;
+        }
+
+        .lost {
+            background: #ffe0e0;
+            color: #b00020;
+        }
+
+        .found {
+            background: #d8f8df;
+            color: #14732b;
+        }
+
+        .empty {
+            text-align: center;
+            padding: 30px;
+            color: #666;
+            background: white;
+            border-radius: 10px;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            background: #1769e0;
+            color: white;
+            margin-top: 40px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @media (max-width: 500px) {
+            header h1 {
+                font-size: 27px;
+            }
+
+            nav button {
+                padding: 8px;
+                font-size: 13px;
+            }
+
+            .search-box {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <h1>🔎 FindIt</h1>
+        <p>Lost & Found Management App</p>
+        <p>Lost something? Let's find it!</p>
+    </header>
+
+    <nav>
+        <button onclick="showHome()">Home</button>
+        <button onclick="showForm('Lost')">Report Lost</button>
+        <button onclick="showForm('Found')">Report Found</button>
+    </nav>
+
+    <main class="container">
+
+        <section class="welcome" id="homeSection">
+            <h2>Welcome to FindIt!</h2>
+
+            <p>
+                FindIt helps students and community members report
+                lost belongings and return found items to their owners.
+            </p>
+
+            <div class="search-box">
+                <input
+                    type="text"
+                    id="searchInput"
+                    placeholder="Search for an item..."
+                    oninput="displayItems()"
+                >
+
+                <button class="primary-btn"
+                        onclick="displayItems()">
+                    Search
+                </button>
+            </div>
+
+            <button class="primary-btn"
+                    onclick="showForm('Lost')">
+                + Report Lost Item
+            </button>
+
+            <button class="primary-btn"
+                    onclick="showForm('Found')">
+                + Report Found Item
+            </button>
+        </section>
+
+        <section class="form-card hidden" id="formSection">
+            <h2 id="formTitle">Report an Item</h2>
+
+            <form id="itemForm">
+
+                <label for="itemName">Item Name</label>
+                <input
+                    type="text"
+                    id="itemName"
+                    placeholder="Example: Black Wallet"
+                    required
+                >
+
+                <label for="itemType">Report Type</label>
+                <select id="itemType" required>
+                    <option value="Lost">Lost Item</option>
+                    <option value="Found">Found Item</option>
+                </select>
+
+                <label for="itemLocation">Location</label>
+                <input
+                    type="text"
+                    id="itemLocation"
+                    placeholder="Where was it lost or found?"
+                    required
+                >
+
+                <label for="itemDate">Date</label>
+                <input type="date" id="itemDate" required>
+
+                <label for="itemDescription">Description</label>
+                <textarea
+                    id="itemDescription"
+                    placeholder="Describe the item..."
+                    required
+                ></textarea>
+
+                <label for="contactInfo">Contact Information</label>
+                <input
+                    type="text"
+                    id="contactInfo"
+                    placeholder="School email or other contact"
+                    required
+                >
+
+                <button type="submit" class="primary-btn">
+                    Submit Report
+                </button>
+
+                <button type="button"
+                        class="primary-btn"
+                        onclick="showHome()">
+                    Cancel
+                </button>
+
+            </form>
+        </section>
+
+        <section id="itemsSection">
+            <h2>📋 Lost & Found Items</h2>
+            <p>Browse the items reported by users.</p>
+
+            <div class="items-grid" id="itemsGrid"></div>
+        </section>
+
+    </main>
+
+    <footer>
+        <p>© 2026 FindIt | Lost & Found Management App</p>
+        <p>Helping people find what matters.</p>
+    </footer>
+
+    <script>
+        const STORAGE_KEY = "findit_items_v1";
+
+        // Load saved reports from this browser.
+        // Sample reports are displayed on the first visit.
+        let items = loadItems();
+
+        function loadItems() {
+            try {
+                const saved = localStorage.getItem(STORAGE_KEY);
+
+                if (saved !== null) {
+                    const parsed = JSON.parse(saved);
+
+                    if (Array.isArray(parsed)) {
+                        return parsed;
+                    }
+                }
+            } catch (error) {
+                console.error("Could not load reports:", error);
+            }
+
+            return [
+                {
+                    id: 1,
+                    name: "Black Wallet",
+                    type: "Lost",
+                    location: "School Library",
+                    date: "2026-10-12",
+                    description:
+                        "A black wallet containing school identification.",
+                    contact: "Contact the school office."
+                },
+                {
+                    id: 2,
+                    name: "Water Bottle",
+                    type: "Found",
+                    location: "School Canteen",
+                    date: "2026-10-13",
+                    description:
+                        "A blue water bottle left on a table.",
+                    contact: "Ask at the school office."
+                }
+            ];
+        }
+
+        function saveItems() {
+            try {
+                localStorage.setItem(
+                    STORAGE_KEY,
+                    JSON.stringify(items)
+                );
+                return true;
+            } catch (error) {
+                alert(
+                    "Unable to save reports in this browser. " +
+                    "Check your browser storage settings."
+                );
+                return false;
+            }
+        }
+
+        function showHome() {
+            document.getElementById("homeSection")
+                .classList.remove("hidden");
+
+            document.getElementById("formSection")
+                .classList.add("hidden");
+
+            document.getElementById("itemsSection")
+                .classList.remove("hidden");
+
+            displayItems();
+
+            window.scrollTo({
+                top: 0,
+                behavior: "smooth"
+            });
+        }
+
+        function showForm(type) {
+            document.getElementById("homeSection")
+                .classList.add("hidden");
+
+            document.getElementById("itemsSection")
+                .classList.add("hidden");
+
+            document.getElementById("formSection")
+                .classList.remove("hidden");
+
+            document.getElementById("formTitle").textContent =
+                "Report a " + type + " Item";
+
+            document.getElementById("itemType").value = type;
+
+            document.getElementById("itemDate").value =
+                new Date().toLocaleDateString("en-CA");
+
+            window.scrollTo({
+                top: 0,
+                behavior: "smooth"
+            });
+        }
+
+        function displayItems() {
+            const grid = document.getElementById("itemsGrid");
+
+            const search = document
+                .getElementById("searchInput")
+                .value.toLowerCase()
+                .trim();
+
+            const filteredItems = items.filter(function(item) {
+                const searchableText = [
+                    item.name,
+                    item.type,
+                    item.location,
+                    item.description
+                ].join(" ").toLowerCase();
+
+                return searchableText.includes(search);
+            });
+
+            grid.replaceChildren();
+
+            if (filteredItems.length === 0) {
+                const message = document.createElement("div");
+                message.className = "empty";
+                message.textContent =
+                    "No items found. Try another search.";
+
+                grid.appendChild(message);
+                return;
+            }
+
+            filteredItems.forEach(function(item) {
+                const card = document.createElement("article");
+                card.className = "item-card";
+
+                const badge = document.createElement("span");
+                badge.className = "badge " +
+                    (item.type === "Lost" ? "lost" : "found");
+                badge.textContent = item.type.toUpperCase();
+
+                const title = document.createElement("h3");
+                title.textContent = item.name;
+
+                const location = document.createElement("p");
+                location.textContent = "📍 Location: " + item.location;
+
+                const date = document.createElement("p");
+                date.textContent = "📅 Date: " + item.date;
+
+                const description = document.createElement("p");
+                description.textContent =
+                    "Description: " + item.description;
+
+                const contact = document.createElement("p");
+                contact.textContent =
+                    "Contact: " + item.contact;
+
+                card.append(
+                    badge,
+                    title,
+                    location,
+                    date,
+                    description,
+                    contact
+                );
+
+                grid.appendChild(card);
+            });
+        }
+
+        document.getElementById("itemForm")
+            .addEventListener("submit", function(event) {
+                event.preventDefault();
+
+                const newItem = {
+                    id: Date.now(),
+                    name: document.getElementById("itemName")
+                        .value.trim(),
+
+                    type: document.getElementById("itemType").value,
+
+                    location: document.getElementById("itemLocation")
+                        .value.trim(),
+
+                    date: document.getElementById("itemDate").value,
+
+                    description:
+                        document.getElementById("itemDescription")
+                            .value.trim(),
+
+                    contact: document.getElementById("contactInfo")
+                        .value.trim()
+                };
+
+                if (
+                    !newItem.name ||
+                    !newItem.location ||
+                    !newItem.date ||
+                    !newItem.description ||
+                    !newItem.contact
+                ) {
+                    alert("Please complete all fields.");
+                    return;
+                }
+
+                items.unshift(newItem);
+
+                if (!saveItems()) {
+                    items.shift();
+                    return;
+                }
+
+                alert("Your report has been submitted successfully!");
+
+                document.getElementById("itemForm").reset();
+
+                showHome();
+            });
+
+        displayItems();
+    </script>
+
+</body>
+</html>
